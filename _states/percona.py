@@ -24,7 +24,8 @@ def _accept_int_as_bool(value):
 
 
 def setglobal(name, value, fail_on_missing=True, fail_on_readonly=True, **connection_args):
-    if not __salt__['percona.hasglobal'](name, **connection_args):
+    name_var = name.replace('-', '_')
+    if not __salt__['percona.hasglobal'](name_var, **connection_args):
         return {'name': name,
                 'changes': {},
                 'result': not fail_on_missing,
@@ -35,7 +36,7 @@ def setglobal(name, value, fail_on_missing=True, fail_on_readonly=True, **connec
            'result': True,
            'comment': 'Variable {0} is already set'.format(name)}
 
-    existing_value = __salt__['percona.getglobal'](name, **connection_args)
+    existing_value = __salt__['percona.getglobal'](name_var, **connection_args)
     if isinstance(_str_to_bool(existing_value.lower()), bool):
         if _str_to_bool(existing_value.lower()) == _accept_int_as_bool(value):
             return ret
@@ -54,7 +55,7 @@ def setglobal(name, value, fail_on_missing=True, fail_on_readonly=True, **connec
         return ret
 
     try:
-        result = __salt__['percona.setglobal'](name, value, fail_on_readonly=False, **connection_args)
+        result = __salt__['percona.setglobal'](name_var, value, fail_on_readonly=False, **connection_args)
         if result == 'readonly':
             ret['comment'] = 'Variable %s is read-only' % name
             ret['changes'] = {}
